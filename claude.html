@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ENİS DÖVİZ – A Grubu Yetkili Müessese</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy: #0f172a;
+      --navy-mid: #1e293b;
+      --navy-light: #2d3f5e;
+      --gold: #f59e0b;
+      --gold-light: #fcd34d;
+      --gold-dim: rgba(245,158,11,0.12);
+      --buy-color: #3b82f6;
+      --buy-bg: rgba(59,130,246,0.08);
+      --sell-color: #ef4444;
+      --sell-bg: rgba(239,68,68,0.08);
+      --text-primary: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: rgba(245,158,11,0.18);
+      --card-bg: rgba(30,41,59,0.9);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--navy);
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 10% 0%, rgba(245,158,11,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 100%, rgba(59,130,246,0.05) 0%, transparent 50%);
+    }
+
+    /* ───── HEADER ───── */
+    header {
+      background: linear-gradient(135deg, #0a1020 0%, var(--navy-mid) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 60px,
+        rgba(245,158,11,0.015) 60px,
+        rgba(245,158,11,0.015) 61px
+      );
+    }
+    .header-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand-block { display: flex; flex-direction: column; }
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      line-height: 1;
+      text-shadow: 0 0 40px rgba(245,158,11,0.3);
+    }
+    .brand-name span { color: #fff; }
+    .brand-sub {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-dim);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.72rem;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.5; transform:scale(0.8); }
+    }
+    .last-updated {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+    #countdown-bar {
+      width: 100%;
+      height: 2px;
+      background: rgba(245,158,11,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    #countdown-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      width: 100%;
+      transition: width 1s linear;
+    }
+
+    /* ───── MAIN ───── */
+    .main-wrapper {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 28px 20px 0;
+    }
+
+    /* ───── SECTION TITLE ───── */
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ───── RATE TABLE ───── */
+    .rate-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+    .rate-table-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      background: rgba(245,158,11,0.07);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+    }
+    .rate-table-header span {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .rate-table-header span:not(:first-child) { text-align: right; }
+
+    .rate-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(245,158,11,0.07);
+      align-items: center;
+      transition: background 0.2s;
+    }
+    .rate-row:last-child { border-bottom: none; }
+    .rate-row:hover { background: rgba(245,158,11,0.04); }
+
+    .currency-info { display: flex; align-items: center; gap: 10px; }
+    .currency-flag {
+      width: 32px; height: 22px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+      font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .currency-code {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .currency-name {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+    .rate-buy, .rate-sell, .rate-change {
+      text-align: right;
+      font-size: 0.92rem;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+    .rate-buy {
+      color: var(--buy-color);
+      background: var(--buy-bg);
+      border-radius: 6px;
+      padding: 4px 10px;
+      display: inline-block;
+      margin-left: auto;
+    }
+    .rate-sell {
+      color: var(--sell-color);
+      background: var(--sell-bg);
+      border-radius: 6px;
+      padding: 4px 10px;
+      display: inline-block;
+      margin-left: auto;
+    }
+    .rate-change { font-size: 0.75rem; }
+    .rate-change.up { color: #22c55e; }
+    .rate-change.down { color: #ef4444; }
+    .rate-change.neutral { color: var(--text-muted); }
+    .cell-right { display: flex; justify-content: flex-end; }
+    .skeleton {
+      background: linear-gradient(90deg, var(--navy-light) 25%, rgba(255,255,255,0.05) 50%, var(--navy-light) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+      height: 22px; width: 70px;
+      display: inline-block;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ───── CONVERTER ───── */
+    .converter-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 20px;
+    }
+    .converter-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      color: var(--gold);
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+    }
+    .form-label-custom {
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .input-custom {
+      width: 100%;
+      background: rgba(15,23,42,0.7);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 10px 14px;
+      font-size: 1rem;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .input-custom:focus { border-color: var(--gold); }
+    .input-custom option { background: var(--navy-mid); }
+    select.input-custom { cursor: pointer; }
+
+    .swap-btn {
+      width: 100%;
+      background: var(--gold-dim);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--gold);
+      padding: 9px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .swap-btn:hover { background: rgba(245,158,11,0.2); }
+
+    .result-box {
+      background: rgba(15,23,42,0.8);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 18px;
+      text-align: center;
+    }
+    .result-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+    .result-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-top: 4px;
+    }
+    .rate-info-line {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .rate-info-line strong { color: var(--text-primary); }
+
+    .quick-amounts {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .quick-btn {
+      background: rgba(245,158,11,0.07);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .quick-btn:hover { background: var(--gold-dim); color: var(--gold); }
+
+    /* ───── MINI TABLE ───── */
+    .mini-table {
+      width: 100%;
+      margin-top: 16px;
+      font-size: 0.78rem;
+      border-collapse: collapse;
+    }
+    .mini-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(245,158,11,0.06);
+    }
+    .mini-table td:first-child { color: var(--text-muted); }
+    .mini-table td:last-child { text-align: right; color: var(--text-primary); font-weight: 500; }
+
+    /* ───── FOOTER ───── */
+    footer {
+      margin-top: 40px;
+      border-top: 1px solid var(--border);
+      background: rgba(10,16,32,0.95);
+      padding: 24px 32px;
+    }
+    .footer-inner { max-width: 1300px; margin: 0 auto; }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+    .footer-col-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .footer-col p, .footer-col li {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      list-style: none;
+    }
+    .footer-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+    .footer-legal {
+      font-size: 0.68rem;
+      color: #475569;
+      line-height: 1.7;
+      max-width: 900px;
+    }
+    .footer-bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .footer-bottom-row span { font-size: 0.7rem; color: #475569; }
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+    }
+
+    /* ───── RESPONSIVE ───── */
+    @media (max-width: 768px) {
+      .header-inner { padding: 16px 18px; }
+      .main-wrapper { padding: 18px 14px 0; }
+      .rate-table-header, .rate-row { padding: 10px 14px; }
+      footer { padding: 20px 16px; }
+      .converter-card { position: static; }
+      .rate-buy, .rate-sell { font-size: 0.82rem; padding: 3px 7px; }
+    }
+
+    .error-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 8px; padding: 6px 12px;
+      font-size: 0.75rem; color: #fca5a5;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="brand-block">
+      <div class="brand-name">ENİS <span>DÖVİZ</span></div>
+      <div class="brand-sub">A Grubu Yetkili Müessese &nbsp;•&nbsp; Döviz Alım &amp; Satım</div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        CANLI KUR
+      </div>
+      <div class="last-updated" id="last-updated">Yükleniyor…</div>
+    </div>
+  </div>
+  <div id="countdown-bar"><div id="countdown-fill"></div></div>
+</header>
+
+<!-- MAIN -->
+<div class="main-wrapper">
+  <div class="row g-4">
+
+    <!-- LEFT: Rate Table -->
+    <div class="col-lg-7 col-xl-8">
+      <div class="section-label">Döviz Kurları</div>
+      <div id="error-zone" class="mb-3" style="display:none"></div>
+      <div class="rate-card">
+        <div class="rate-table-header">
+          <span>Para Birimi</span>
+          <span>Dönüşüm Çifti</span>
+          <span>Alış (BUY)</span>
+          <span>Satış (SELL)</span>
+        </div>
+        <div id="rate-rows">
+          <div class="rate-row">
+            <div class="currency-info"><div class="skeleton" style="width:32px;height:22px;border-radius:4px"></div><div><div class="skeleton" style="width:40px;height:14px;margin-bottom:4px"></div><div class="skeleton" style="width:60px;height:10px"></div></div></div>
+            <div class="cell-right"><div class="skeleton"></div></div>
+            <div class="cell-right"><div class="skeleton"></div></div>
+            <div class="cell-right"><div class="skeleton"></div></div>
+          </div>
+          <div class="rate-row">
+            <div class="currency-info"><div class="skeleton" style="width:32px;height:22px;border-radius:4px"></div><div><div class="skeleton" style="width:40px;height:14px;margin-bottom:4px"></div><div class="skeleton" style="width:60px;height:10px"></div></div></div>
+            <div class="cell-right"><div class="skeleton"></div></div>
+            <div class="cell-right"><div class="skeleton"></div></div>
+            <div class="cell-right"><div class="skeleton"></div></div>
+          </div>
+        </div>
+      </div>
+      <p class="mt-3" style="font-size:0.7rem;color:#475569;">
+        * Alış/Satış fiyatları ENİS DÖVİZ müessese fiyatlarını yansıtmaktadır. Piyasa fiyatlarından farklılık gösterebilir. Güncellenme sıklığı: 60 saniye.
+      </p>
+    </div>
+
+    <!-- RIGHT: Converter -->
+    <div class="col-lg-5 col-xl-4">
+      <div class="section-label">Döviz Çevirici</div>
+      <div class="converter-card">
+        <div class="converter-title">Anlık Hesaplama</div>
+
+        <div class="mb-3">
+          <label class="form-label-custom">Miktar</label>
+          <input type="number" class="input-custom" id="conv-amount" value="1000" min="0" step="any"/>
+          <div class="quick-amounts">
+            <button class="quick-btn" onclick="setAmount(100)">100</button>
+            <button class="quick-btn" onclick="setAmount(500)">500</button>
+            <button class="quick-btn" onclick="setAmount(1000)">1.000</button>
+            <button class="quick-btn" onclick="setAmount(5000)">5.000</button>
+            <button class="quick-btn" onclick="setAmount(10000)">10.000</button>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label-custom">Kaynak Para Birimi</label>
+          <select class="input-custom" id="conv-from"></select>
+        </div>
+
+        <button class="swap-btn mb-3" onclick="swapCurrencies()">⇅ &nbsp; Birimleri Değiştir</button>
+
+        <div class="mb-3">
+          <label class="form-label-custom">Hedef Para Birimi</label>
+          <select class="input-custom" id="conv-to"></select>
+        </div>
+
+        <div class="result-box" id="result-box">
+          <div class="result-amount" id="result-amount">—</div>
+          <div class="result-label" id="result-label">Sonuç</div>
+          <div class="rate-info-line" id="rate-info-line"></div>
+        </div>
+
+        <div class="mt-4">
+          <div class="section-label" style="font-size:0.6rem;">Tüm Çiftler (1 birim)</div>
+          <table class="mini-table" id="mini-table"><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-col-title">Şirket Bilgileri</div>
+        <ul>
+          <li>ENİS DÖVİZ TİCARET A.Ş.</li>
+          <li>Ticaret Sicil No: İST / 12345</li>
+          <li>MERSİS No: 0123456789012345</li>
+          <li>Vergi Dairesi: Fatih VD</li>
+          <li>Vergi No: 1234567890</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">İletişim</div>
+        <ul>
+          <li>Kapalıçarşı, İç Bedesten No: 1</li>
+          <li>Fatih / İstanbul</li>
+          <li>Tel: +90 (212) 123 45 67</li>
+          <li>E-posta: info@enisdoviz.com.tr</li>
+          <li>Pazartesi – Cumartesi: 09:00 – 18:00</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Lisans &amp; Yetki</div>
+        <ul>
+          <li>TCMB Yetki Belgesi: A Grubu</li>
+          <li>Belge No: TR-DOV-0001</li>
+          <li>MASAK Yükümlülük No: MSK-12345</li>
+          <li>Banka ve Kambiyo Md. denetiminde</li>
+        </ul>
+      </div>
+    </div>
+    <hr class="footer-divider"/>
+    <p class="footer-legal">
+      <strong style="color:#64748b;">Yasal Uyarı:</strong> Bu sayfada yer alan döviz kurları yalnızca bilgilendirme amaçlıdır; gerçek işlem fiyatları gişe kurlarına göre belirlenir. ENİS DÖVİZ TİCARET A.Ş., 6362 sayılı Sermaye Piyasası Kanunu ve 1567 sayılı Türk Parası Kıymetini Koruma Kanunu çerçevesinde faaliyet göstermektedir. Yatırım tavsiyesi verilmemektedir. Döviz alım-satım işlemleri piyasa koşullarına bağlı risk içerebilir. MASAK yükümlülükleri kapsamında kimlik doğrulama zorunludur.
+    </p>
+    <div class="footer-bottom-row">
+      <span class="footer-brand">ENİS DÖVİZ</span>
+      <span>© 2025 ENİS DÖVİZ TİCARET A.Ş. – Tüm hakları saklıdır.</span>
+      <span>Veri kaynağı: fawazahmed0 Currency API</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const CURRENCIES = [
+  { code: 'USD', name: 'Amerikan Doları',   flag: '🇺🇸', spread: 0.012 },
+  { code: 'EUR', name: 'Euro',              flag: '🇪🇺', spread: 0.013 },
+  { code: 'GBP', name: 'İngiliz Sterlini',  flag: '🇬🇧', spread: 0.014 },
+  { code: 'CHF', name: 'İsviçre Frangı',   flag: '🇨🇭', spread: 0.012 },
+  { code: 'SAR', name: 'Suudi Riyali',      flag: '🇸🇦', spread: 0.015 },
+  { code: 'JPY', name: 'Japon Yeni',        flag: '🇯🇵', spread: 0.013 },
+  { code: 'TRY', name: 'Türk Lirası',       flag: '🇹🇷', spread: 0 },
+  { code: 'AED', name: 'BAE Dirhemi',       flag: '🇦🇪', spread: 0.013 },
+  { code: 'CAD', name: 'Kanada Doları',     flag: '🇨🇦', spread: 0.012 },
+  { code: 'AUD', name: 'Avustralya Doları', flag: '🇦🇺', spread: 0.013 },
+];
+
+const TABLE_CODES = ['USD','EUR','GBP','CHF','SAR','JPY'];
+let rates = {}, allRates = {}, prevRates = {};
+let countdown = 60, countdownTimer = null;
+
+async function fetchRates() {
+  try {
+    const url = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/try.json';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('API yanıt vermedi');
+    const data = await res.json();
+    const raw = data.try;
+    allRates = {};
+    for (const [key, val] of Object.entries(raw)) {
+      if (val && val > 0) allRates[key.toUpperCase()] = 1 / val;
+    }
+    rates = {};
+    for (const c of CURRENCIES) {
+      const mid = allRates[c.code] || null;
+      if (!mid) continue;
+      const half = mid * c.spread / 2;
+      rates[c.code] = { mid, bid: mid - half, ask: mid + half };
+    }
+    allRates['TRY'] = 1;
+    rates['TRY'] = { mid: 1, bid: 1, ask: 1 };
+    renderTable();
+    updateConverter();
+    updateMiniTable();
+    document.getElementById('last-updated').textContent =
+      'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR');
+    hideError();
+  } catch (e) {
+    showError('Kur verisi alınamadı: ' + e.message);
+  }
+}
+
+function renderTable() {
+  const container = document.getElementById('rate-rows');
+  container.innerHTML = '';
+  for (const code of TABLE_CODES) {
+    const c = CURRENCIES.find(x => x.code === code);
+    const r = rates[code];
+    if (!r) continue;
+    const dec = code === 'JPY' ? 4 : (r.bid < 1 ? 5 : 4);
+    const pairLabel = `<span style="font-size:0.78rem;color:var(--text-muted)">${code}<span style="color:#475569">/TRY</span></span>`;
+    const row = document.createElement('div');
+    row.className = 'rate-row';
+    row.innerHTML = `
+      <div class="currency-info">
+        <div class="currency-flag">${c.flag}</div>
+        <div>
+          <div class="currency-code">${c.code}</div>
+          <div class="currency-name">${c.name}</div>
+        </div>
+      </div>
+      <div class="cell-right">${pairLabel}</div>
+      <div class="cell-right"><span class="rate-buy">${r.bid.toFixed(dec)}</span></div>
+      <div class="cell-right"><span class="rate-sell">${r.ask.toFixed(dec)}</span></div>
+    `;
+    container.appendChild(row);
+  }
+  prevRates = JSON.parse(JSON.stringify(rates));
+}
+
+function populateSelects() {
+  const fromSel = document.getElementById('conv-from');
+  const toSel   = document.getElementById('conv-to');
+  fromSel.innerHTML = toSel.innerHTML = '';
+  for (const c of CURRENCIES) {
+    const opt = document.createElement('option');
+    opt.value = c.code;
+    opt.textContent = `${c.flag}  ${c.code} – ${c.name}`;
+    fromSel.appendChild(opt);
+    toSel.appendChild(opt.cloneNode(true));
+  }
+  fromSel.value = 'USD';
+  toSel.value   = 'TRY';
+}
+
+function updateConverter() {
+  const amount = parseFloat(document.getElementById('conv-amount').value) || 0;
+  const from   = document.getElementById('conv-from').value;
+  const to     = document.getElementById('conv-to').value;
+  if (!rates[from] || !rates[to]) { document.getElementById('result-amount').textContent = '—'; return; }
+  const result = amount * (rates[from].mid / rates[to].mid);
+  const toC    = CURRENCIES.find(c => c.code === to);
+  const fromC  = CURRENCIES.find(c => c.code === from);
+  const dec    = (to === 'JPY' || to === 'SAR') ? 2 : (result > 1000 ? 2 : 4);
+  document.getElementById('result-amount').textContent =
+    result.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: dec });
+  document.getElementById('result-label').textContent =
+    `${amount.toLocaleString('tr-TR')} ${fromC.flag} ${from}  →  ${toC.flag} ${to}`;
+  document.getElementById('rate-info-line').innerHTML =
+    `1 <strong>${from}</strong> = <strong>${(rates[from].mid / rates[to].mid).toFixed(6)}</strong> ${to}`;
+}
+
+function setAmount(val) {
+  document.getElementById('conv-amount').value = val;
+  updateConverter();
+}
+
+function swapCurrencies() {
+  const f = document.getElementById('conv-from');
+  const t = document.getElementById('conv-to');
+  const tmp = f.value; f.value = t.value; t.value = tmp;
+  updateConverter();
+}
+
+function updateMiniTable() {
+  const from  = document.getElementById('conv-from').value;
+  const tbody = document.querySelector('#mini-table tbody');
+  tbody.innerHTML = '';
+  if (!rates[from]) return;
+  for (const c of CURRENCIES) {
+    if (c.code === from || !rates[c.code]) continue;
+    const rate = rates[from].mid / rates[c.code].mid;
+    const dec  = rate > 100 ? 2 : (rate > 1 ? 4 : 6);
+    const tr   = document.createElement('tr');
+    tr.innerHTML = `<td>${c.flag} ${c.code}</td><td>${rate.toFixed(dec)}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function startCountdown() {
+  countdown = 60;
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    countdown--;
+    document.getElementById('countdown-fill').style.width = (countdown / 60 * 100) + '%';
+    if (countdown <= 0) { countdown = 60; fetchRates(); }
+  }, 1000);
+}
+
+function showError(msg) {
+  const z = document.getElementById('error-zone');
+  z.style.display = 'block';
+  z.innerHTML = `<div class="error-badge">⚠ ${msg}</div>`;
+}
+function hideError() { document.getElementById('error-zone').style.display = 'none'; }
+
+document.addEventListener('DOMContentLoaded', () => {
+  populateSelects();
+  fetchRates();
+  startCountdown();
+  document.getElementById('conv-amount').addEventListener('input', () => { updateConverter(); updateMiniTable(); });
+  document.getElementById('conv-from').addEventListener('change', () => { updateConverter(); updateMiniTable(); });
+  document.getElementById('conv-to').addEventListener('change', () => { updateConverter(); updateMiniTable(); });
+});
+</script>
+</body>
+</html>
